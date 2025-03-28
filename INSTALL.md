@@ -1,11 +1,28 @@
 # Installation
 
+## For IsaacLab Integrated Environment
+I have commented out unnecessary lines from the original INSTALL.md. Just begin by following the instructions at 
+https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/pip_installation.html
+and then
+```bash
+pip install -r requirements.txt
+```
+Make sure to also still run the compile steps (below). Since they modify the ez/mcts/ctree/cytree.cpp files, I recommend:
+```bash
+git update-index --assume-unchanged ez/mcts/ctree/cytree.cpp
+git update-index --assume-unchanged ez/mcts/ctree_v2/cytree.cpp
+git update-index --assume-unchanged ez/mcts/ori_ctree/cytree.cpp
+```
+
+Feel free to ask me if you have questions
+-- Gryphon :))
+
 ## Prerequisites & Installation
 
 ```bash
-conda create -n ezv2 python=3.8
-conda activate ezv2
-pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2
+# conda create -n ezv2 python=3.8
+# conda activate ezv2
+# pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 
 pip install -r requirements.txt
 ```
 
