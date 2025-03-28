@@ -16,7 +16,7 @@ from ez.agents.models import EfficientZero
 from ez.agents.models.base_model import *
 
 
-class EZAtariAgent(Agent):
+class EZTestAgent(Agent):
     def __init__(self, config):
         super().__init__(config)
 
@@ -37,7 +37,19 @@ class EZAtariAgent(Agent):
     def update_config(self):
         assert not self._update
 
-        env = make_atari(self.config.env.game, seed=0, save_path=None, **self.config.env)
+        env = isaacgymenvs.make(
+            config.env.base_seed,
+            config.task, # Fix me!
+            config.data.num_envs,
+            config.env.sim_device,
+            config.env.rl_device,
+            config.env.graphics_device_id,
+            config.headless,
+            config.env.multi_gpu,
+            config.env.capture_video,
+            config.env.force_render,
+            config,
+        )
         action_space_size = env.action_space.n
 
         obs_channel = 1 if self.config.env.gray_scale else 3

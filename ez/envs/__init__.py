@@ -1,6 +1,6 @@
 import os
 import dmc2gym
-from gym.wrappers import Monitor
+from gymnasium.wrappers import RecordVideo as Monitor
 from .gym import GymWrapper
 from .atari import AtariWrapper
 from .dmc import DMCWrapper
