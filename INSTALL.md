@@ -1,6 +1,6 @@
 # Installation
 
-## For IsaacLab Integrated Environment
+## For IsaacLab + Warp Integrated Environment
 I have commented out unnecessary lines from the original INSTALL.md. Just begin by following the instructions at 
 https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/pip_installation.html
 and then
@@ -12,6 +12,13 @@ Make sure to also still run the compile steps (below). Since they modify the ez/
 git update-index --assume-unchanged ez/mcts/ctree/cytree.cpp
 git update-index --assume-unchanged ez/mcts/ctree_v2/cytree.cpp
 git update-index --assume-unchanged ez/mcts/ori_ctree/cytree.cpp
+```
+
+After This step, it should work for both Isaac Lab and EZV2. For warp functionality, in the warp-sim-envs repo
+```bash
+pip install -e .
+pip install cvxpy pyqtgraph pyqt5
+pip install pyglet==2.1.3
 ```
 
 Feel free to ask me if you have questions
