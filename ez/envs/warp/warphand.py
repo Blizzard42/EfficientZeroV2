@@ -10,6 +10,7 @@ import torch.autograd.functional
 
 import cvxpy as cp
 
+import gymnasium as gym
 import warp as wp
 import warp.sim
 import warp.autograd
@@ -20,6 +21,7 @@ from warp_sim_envs.envs import AllegroRotateCubeEnvironment, IntegratorType
 from warp_sim_envs.algos import SHAC
 from warp_sim_envs.utils import function_jacobian, function_jacobian_fd, check_jacobian
 from warp_sim_envs.utils.grad_utils import compare_jacobians
+
 
 @wp.kernel
 def assign_target_poses(
@@ -112,9 +114,6 @@ def quat_multiply(q1: torch.Tensor, q2: torch.Tensor) -> torch.Tensor:
 
 
 def init_environment(num_envs, max_episode_length, random_reset = False):
-    render_mode = None
-    render_mode = "human"
-    
     raw_env = AllegroRotateCubeEnvironment(
         num_envs=num_envs,
         setup_renderer=True,
@@ -255,7 +254,7 @@ def main():
         )
         costs.append(cost)
         actions.append(action)
-
+        
         observation, reward, done, extra, manipulability, current_object_pose = env.step(action.to(wp.device_to_torch(env.device)))
         
         # Progress

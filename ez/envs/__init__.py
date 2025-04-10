@@ -9,19 +9,26 @@ import random
 from dm_env import specs
 from ez.utils.format import arr_to_str
 
+import gymnasium as gym # Or import gym if the project uses the older version
+
+# Adjust import path to where your WARP Gym wrapper class is defined
+from .warp.warp_hand_gym_wrapper import HandEnvGymWrapper
+
 
 def make_envs(game_setting, game_name, num_envs, seed, save_path=None, **kwargs):
-    assert game_setting in ['Atari', 'DMC', 'Gym']
+    assert game_setting in ['Atari', 'DMC', 'Gym', 'WARPHand']
     if game_setting == 'Atari':
         _env_fn = make_atari
     elif game_setting == 'Gym':
         _env_fn = make_gym
     elif game_setting == 'DMC':
         _env_fn = make_dmc
+    elif game_setting == 'WARPHand':
+        _env_fn = make_warp_hand
     else:
         raise NotImplementedError()
 
-    if game_setting == 'DMC':
+    if game_setting == 'DMC' or game_setting == 'WARPHand':
         seed = random.randint(1, 1000)
 
     envs = [_env_fn(game_name,
@@ -32,7 +39,7 @@ def make_envs(game_setting, game_name, num_envs, seed, save_path=None, **kwargs)
 
 
 def make_env(game_setting, game_name, num_envs, seed, save_path=None, **kwargs):
-    assert game_setting in ['Atari', 'DMC', 'Gym']
+    assert game_setting in ['Atari', 'DMC', 'Gym', 'WARPHand']
     if game_setting == 'Atari':
         _env_fn = make_atari
     elif game_setting == 'Gym':
@@ -180,4 +187,22 @@ def make_dmc(game_name, seed, save_path=None, **kwargs):
 
     # your wrapper
     env = DMCWrapper(env, obs_to_string=obs_to_string, clip_reward=clip_reward)
+    return env
+
+def make_warp_hand(game_name, seed, save_path=None, **kwargs):
+    """Make WARP Hand Rotation environments"""
+    # Create the Gym-compliant wrapper
+    # Pass the relevant subset of kwargs as 'config' if needed by the wrapper
+    env = HandEnvGymWrapper(seed=seed, config=kwargs)
+
+    # Apply standard wrappers (TimeLimit is likely handled inside now, but double-check)
+    # max_episode_steps = kwargs.get('max_episode_steps', 300)
+    # env = TimeLimit(env, max_episode_steps=max_episode_steps) # Redundant if HandEnvGymWrapper handles it
+
+    if save_path:
+        env = Monitor(env, directory=save_path, force=True)
+
+    print(f"Created Gym-Wrapped WARP Hand Env: {game_name} with seed {seed}")
+    print(f"Observation Space: {env.observation_space}")
+    print(f"Action Space: {env.action_space}")
     return env

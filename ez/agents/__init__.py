@@ -7,10 +7,12 @@ from ez.agents.ez_atari import EZAtariAgent
 from ez.agents.ez_dmc_image import EZDMCImageAgent
 from ez.agents.ez_dmc_state import EZDMCStateAgent
 from ez.agents.ez_test import EZTestAgent
+from ez.agents.ez_warp_hand import WARPStateAgent
 
 names = {
     'atari_agent': EZAtariAgent,
     'dmc_image_agent': EZDMCImageAgent,
     'dmc_state_agent': EZDMCStateAgent,
     'test_agent': EZTestAgent,
+    'warp_state_agent': WARPStateAgent,
 }

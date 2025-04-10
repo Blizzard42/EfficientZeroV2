@@ -100,10 +100,11 @@ class DiscreteSupport(object):
         if config:
             # assert min < max
             self.env = config.env.env
-            if self.env in ['DMC', 'Gym']:
+            if self.env in ['DMC', 'Gym', 'WARPHand']:
                 assert config.model.reward_support.bins == config.model.value_support.bins
                 self.size = config.model.reward_support.bins
             else:
+                breakpoint()
                 assert config.model.reward_support.range[0] == config.model.value_support.range[0]
                 assert config.model.reward_support.range[1] == config.model.value_support.range[1]
                 assert config.model.reward_support.scale == config.model.value_support.scale
@@ -124,7 +125,7 @@ class DiscreteSupport(object):
 
         epsilon = 0.001
 
-        if env in ['DMC', 'Gym']:
+        if env in ['DMC', 'Gym', 'WARPHand']:
             x_min = transform_one(x_min)
             x_max = transform_one(x_max)
             bins = kwargs['bins']
@@ -179,7 +180,7 @@ class DiscreteSupport(object):
         env = kwargs['env']
         epsilon = 0.001
 
-        if env in ['DMC', 'Gym']:
+        if env in ['DMC', 'Gym', 'WARPHand']:
             x_min = transform_one(x_min)
             x_max = transform_one(x_max)
             bins = kwargs['bins']
