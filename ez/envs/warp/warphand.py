@@ -123,7 +123,7 @@ def init_environment(num_envs, max_episode_length, random_reset = False):
     
     env = ManipulabilityTorchEnvWrapper(
         raw_env,
-        render_mode=None,
+        render_mode="Full",
         max_episode_length=max_episode_length,
         reward_bias=0.0,
         reward_scale=10.0,
@@ -265,11 +265,11 @@ def main():
         else:
             # Set to nearest to current position
             cost_to_trajectory = goal_cost(current_object_pose[target_object], dense_trajectories_torch)
-            print(f'{cost_to_trajectory.shape=} {current_object_pose[target_object].shape=} {dense_trajectories_torch.shape=}')
+            # print(f'{cost_to_trajectory.shape=} {current_object_pose[target_object].shape=} {dense_trajectories_torch.shape=}')
             new_goal_index = torch.argmin(
                 cost_to_trajectory
             )
-            print(f'{goal_index=} {new_goal_index=}')
+            # print(f'{goal_index=} {new_goal_index=}')
             goal_index = new_goal_index
             # print(f'{goal_costs.shape=} {current_object_pose.shape=} {dense_trajectories_torch=}')
         

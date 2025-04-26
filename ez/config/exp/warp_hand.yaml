@@ -17,6 +17,7 @@ env:
   clip_reward: False # Start without clipping, adjust if necessary
   obs_shape: 55
   episodic: True # Episodes have a max length
+  render_mode: full # none for none, anything else for full
 
 rl:
   discount: 0.997 # Keep DMC default

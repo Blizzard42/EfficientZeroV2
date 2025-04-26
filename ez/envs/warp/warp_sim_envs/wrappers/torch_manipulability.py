@@ -130,7 +130,6 @@ class ManipulabilityTorchEnvWrapper(RlgamesEnvWrapper):
             state = ctx.states[self.env.sim_substeps]
         # print([state.joint_q.ptr for state in ctx.states])
         # print(state.joint_q.ptr)
-
         # reward is single-step, not cumulative
         ctx.cost_buf.zero_()
         ctx.done_buf.zero_()
@@ -142,7 +141,6 @@ class ManipulabilityTorchEnvWrapper(RlgamesEnvWrapper):
             ctx.cost_buf,
             ctx.done_buf,
         )
-
         # this operation write arrays on the env instance to be used in the next step
         wp.launch(
             eval_timeout,
@@ -173,9 +171,9 @@ class ManipulabilityTorchEnvWrapper(RlgamesEnvWrapper):
         self.compute_observations(state, ctx.control, ctx.obs_buf)
         for object_key in self.env.get_target_keys():
             self.env.query_target_body_q(state, object_key, ctx.target_body_q_buffer[object_key])
-        self.render(state)
+        # self.render(state) # This line causes tons of warnings!!! Moved to forward call
 
-        self.env.reset_envs(ctx.done_buf, state=state)
+        # self.env.reset_envs(ctx.done_buf, state=state) # This line also causes tons of warnings!!! Moved to forward call
 
         # self.state = state
 
@@ -283,6 +281,12 @@ class ManipulabilityTorchEnvWrapper(RlgamesEnvWrapper):
                 ctx.act_buf.assign(wp.from_torch(act))
                 with ctx.tape:
                     self.step_internal(ctx, ctx.act_buf)
+                
+                self.env.reset_envs(ctx.done_buf, state=self.state) # Check this line!!! Does this do the intended env reset @Rachanon?
+
+                if self.render_mode is not None and self.render_mode != "none":
+                    final_state = ctx.states[self.env.sim_substeps]
+                    self.render(state=final_state) # Call render on the wrapper instance
 
                 # ctx.tape.visualize(
                 #     filename="tape.dot",
@@ -304,14 +308,21 @@ class ManipulabilityTorchEnvWrapper(RlgamesEnvWrapper):
                         select_index[output_index] = 1.0
 
                         # Assemble selection vector for all environments (can be precomputed)
-                        e = wp.from_torch(torch.tile(select_index, (self.num_envs,)), dtype=wp.float32)  # Equivalent to np.tile(select_index, self.num_envs)
+                        e = wp.from_torch(torch.tile(select_index, (self.num_envs,)).unsqueeze(0), dtype=wp.float32)  # Equivalent to np.tile(select_index, self.num_envs)
 
-                        ctx.tape.backward(grads={ctx.target_body_q_buffer[object_key]: e})
-                        
-                        q_grad_i = ctx.tape.gradients[ctx.act_buf]
+                        ctx.tape.backward(grads={ctx.target_body_q_buffer[object_key]: e}) # This line causes all of the warnings!
+                        if ctx.act_buf in ctx.tape.gradients:
+                            # print("q_grad_i SUCCESFULLY INITIALIZED")
+                            q_grad_i = wp.to_torch(ctx.tape.gradients[ctx.act_buf])
+                        else:
+                            # Key is missing, assume zero gradient
+                            print(f"Warning: Gradient for action buffer not found for output_index {output_index}. Assuming zero gradient.")
+                            q_grad_i = torch.zeros((self.num_envs, self.num_actions),
+                                                        dtype=torch.float32,
+                                                        device=wp.device_to_torch(self.device))
 
                         # Ensure it's a tensor and reshape correctly
-                        ctx.target_grad_buffer[object_key][:, output_index, :] = wp.to_torch(q_grad_i).reshape((self.num_envs, self.num_actions))
+                        ctx.target_grad_buffer[object_key][:, output_index, :] = q_grad_i.reshape((self.num_envs, self.num_actions))
                         ctx.tape.zero()
 
                     manipulability[object_key] = torch.clone(ctx.target_grad_buffer[object_key])
@@ -321,7 +332,6 @@ class ManipulabilityTorchEnvWrapper(RlgamesEnvWrapper):
                 observations = wp.to_torch(ctx.obs_buf)
                 rewards = wp.to_torch(ctx.rew_buf)
                 dones = wp.to_torch(ctx.done_buf)
-
                 # manipulability = torch.clone(ctx.target_grad_buffer)
                 # object_pose = wp.to_torch(ctx.target_body_q_buffer)
 

@@ -5,8 +5,8 @@ import torch
 import warp as wp
 
 # Import the necessary classes from your WARP setup
-from warp_sim_envs.envs.env_allegro_rotate_cube import AllegroRotateCubeEnvironment
-from warp_sim_envs.wrappers.torch_manipulability import ManipulabilityTorchEnvWrapper # Adjust import paths if needed
+from .warp_sim_envs.envs.env_allegro_rotate_cube import AllegroRotateCubeEnvironment
+from .warp_sim_envs.wrappers.torch_manipulability import ManipulabilityTorchEnvWrapper # Adjust import paths if needed
 
 # Default max steps if not provided in config
 DEFAULT_MAX_STEPS = 300
@@ -24,7 +24,6 @@ class HandEnvGymWrapper(gym.Env):
         self.config = config if config is not None else {}
         self.max_episode_steps = self.config.get('max_episode_steps', DEFAULT_MAX_STEPS)
         self._render_mode = self.config.get('render_mode', None) # Or get from kwargs
-
         # --- Instantiate the underlying WARP env and Torch wrapper ---
         # Assuming num_envs is always 1 for standard Gym interface
         # Pass requires_grad=False if EZV2 doesn't need gradients
@@ -33,11 +32,17 @@ class HandEnvGymWrapper(gym.Env):
             AllegroRotateCubeEnvironment(
                 num_envs=1,
                 seed=seed,
-                random_reset=True # Or get from config
+                setup_renderer=True,
+                requires_grad=True,
+                random_reset=True,
             ),
             render_mode=self._render_mode,
             max_episode_length=self.max_episode_steps,
-            requires_grad=False # Important: Standard RL doesn't need gradients here
+            requires_grad=True,
+            reward_bias=0.0,
+            reward_scale=10.0,
+            image_width=64,
+            image_height=64,
         )
 
         # Initialize self.device
@@ -81,7 +86,7 @@ class HandEnvGymWrapper(gym.Env):
 
         # Reset the underlying env (using force_reset for full reset)
         # Pass grads=False as we don't need gradients for standard RL reset
-        obs_torch = self.warp_torch_env.reset(grads=False, force_reset=True)
+        obs_torch = self.warp_torch_env.reset(grads=False, force_reset=False)
 
         # Convert observation to NumPy
         observation = obs_torch.detach().cpu().numpy().squeeze() # Squeeze if num_envs=1
@@ -89,7 +94,6 @@ class HandEnvGymWrapper(gym.Env):
         # Reset step counter
         self._current_step = 0
 
-        # Standard Gym API returns obs, info
         return observation
 
     def step(self, action):
@@ -103,7 +107,7 @@ class HandEnvGymWrapper(gym.Env):
 
         # Step the underlying environment
         # Ignore next_q, next_qd, manipulability, object_poses
-        obs_torch, reward_torch, done_torch, extras, _, _ = self.warp_torch_env.step(action_torch)
+        obs_torch, reward_torch, done_torch, extras, manipulability, _ = self.warp_torch_env.step(action_torch)
 
         # Convert results back to NumPy / Python scalars
         observation = obs_torch.detach().cpu().numpy().squeeze()
@@ -122,7 +126,7 @@ class HandEnvGymWrapper(gym.Env):
         # info['primal_reward'] = extras.get('primal', reward).item()
         return observation, reward, terminated or truncated, info
 
-    def render(self):
+    def render(self, mode=None):
         # Delegate rendering to the underlying environment
         self.warp_torch_env.render()
 

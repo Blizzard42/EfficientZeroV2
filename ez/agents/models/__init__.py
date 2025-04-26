@@ -105,7 +105,7 @@ class EfficientZero(nn.Module):
         else:
             output_values = DiscreteSupport.vector_to_scalar(values, **self.config.model.value_support).min(0)[0]
 
-        if self.config.env.env in ['DMC', 'Gym']:
+        if self.config.env.env in ['DMC', 'Gym', 'WARPHand']:
             output_values = output_values.clip(0, 1e5)
 
         return state, output_values, policy
@@ -125,7 +125,7 @@ class EfficientZero(nn.Module):
         else:
             output_values = DiscreteSupport.vector_to_scalar(values, **self.config.model.value_support).min(0)[0]
 
-        if self.config.env.env in ['DMC', 'Gym']:
+        if self.config.env.env in ['DMC', 'Gym', 'WARPHand']:
             output_values = output_values.clip(0, 1e5)
 
         if self.config.model.reward_support.type == 'symlog':

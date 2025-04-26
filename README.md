@@ -55,6 +55,8 @@ python ez/train.py exp_config=ez/config/exp/atari.yaml
 python ez/train.py exp_config=ez/config/exp/dmc_state.yaml
 # DMC image
 python ez/train.py exp_config=ez/config/exp/dmc_image.yaml
+# Warp Hand
+python ez/train.py exp_config=ez/config/exp/warp_hand.yaml
 ```
 
 ### More Details

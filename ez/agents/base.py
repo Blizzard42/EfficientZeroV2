@@ -378,7 +378,7 @@ class Agent:
         #     obs_batch_aug2 = self.transform(obs_batch_all)
 
         # others to gpu
-        if self.config.env.env in ['DMC', 'Gym']:
+        if self.config.env.env in ['DMC', 'Gym', 'WARPHand']:
             action_batch = torch.from_numpy(action_batch).float().cuda()
         else:
             action_batch = torch.from_numpy(action_batch).cuda().unsqueeze(-1).long()
@@ -407,7 +407,7 @@ class Agent:
             scaled_value = symexp(values).min(0)[0]
         else:
             scaled_value = DiscreteSupport.vector_to_scalar(values, **self.config.model.value_support).min(0)[0]
-        if self.config.env.env in ['DMC', 'Gym']:
+        if self.config.env.env in ['DMC', 'Gym', 'WARPHand']:
             scaled_value = scaled_value.clip(0, 1e5)
 
         # loss of first step 
@@ -436,7 +436,7 @@ class Agent:
         value_loss += Value_loss(values, this_target_values[:, 0], self.config)
         prev_values = values.clone()
 
-        if self.config.env.env in ['DMC', 'Gym']:
+        if self.config.env.env in ['DMC', 'Gym', 'WARPHand']:
             policy_loss, entropy_loss = continuous_loss(
                 policies, target_actions[:, 0], target_policies[:, 0],
                 target_best_actions[:, 0],
@@ -484,7 +484,7 @@ class Agent:
 
                 value_loss += Value_loss(values, this_target_values[:, step_i + 1], self.config) * mask
 
-                if self.config.env.env in ['DMC', 'Gym']:
+                if self.config.env.env in ['DMC', 'Gym', 'WARPHand']:
                     policy_loss_i, entropy_loss_i = continuous_loss(
                         policies, target_actions[:, step_i + 1], target_policies[:, step_i + 1],
                         target_best_actions[:, step_i + 1],
@@ -510,7 +510,7 @@ class Agent:
                 + policy_loss * self.config.train.policy_loss_coeff
                 + consistency_loss * self.config.train.consistency_coeff)
 
-        if self.config.env.env in ['DMC', 'Gym']:
+        if self.config.env.env in ['DMC', 'Gym', 'WARPHand']:
             loss += policy_entropy_loss * self.config.train.entropy_coeff
 
         weighted_loss = (weights * loss).mean()

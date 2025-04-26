@@ -1,6 +1,6 @@
 import os
 import dmc2gym
-from gymnasium.wrappers import RecordVideo as Monitor
+from gymnasium.wrappers import RecordVideo
 from .gym import GymWrapper
 from .atari import AtariWrapper
 from .dmc import DMCWrapper
@@ -110,7 +110,8 @@ def make_atari(game_name, seed, save_path=None, **kwargs):
 
     # save video to given
     if save_path:
-        env = Monitor(env, directory=save_path, force=True)
+        env = RecordVideo(env, video_folder=save_path, episode_trigger=lambda e: True)
+        # env = Monitor(env, directory=save_path, force=True)
 
     # your wrapper
     env = AtariWrapper(env, obs_to_string=obs_to_string, clip_reward=clip_reward)
@@ -133,7 +134,7 @@ def make_gym(game_name, seed, save_path=None, **kwargs):
 
     # save video to given
     if save_path:
-        env = Monitor(env, directory=save_path, force=True)
+        env = RecordVideo(env, video_folder=save_path, episode_trigger=lambda e: True)
 
     env = GymWrapper(env, obs_to_string=obs_to_string)
     return env
@@ -183,7 +184,7 @@ def make_dmc(game_name, seed, save_path=None, **kwargs):
 
     # save video to given
     if save_path:
-        env = Monitor(env, directory=save_path, force=True)
+        env = RecordVideo(env, video_folder=save_path, episode_trigger=lambda e: True)
 
     # your wrapper
     env = DMCWrapper(env, obs_to_string=obs_to_string, clip_reward=clip_reward)
@@ -200,7 +201,8 @@ def make_warp_hand(game_name, seed, save_path=None, **kwargs):
     # env = TimeLimit(env, max_episode_steps=max_episode_steps) # Redundant if HandEnvGymWrapper handles it
 
     if save_path:
-        env = Monitor(env, directory=save_path, force=True)
+        env = RecordVideo(env, video_folder=save_path, episode_trigger=lambda e: True)
+        pass
 
     print(f"Created Gym-Wrapped WARP Hand Env: {game_name} with seed {seed}")
     print(f"Observation Space: {env.observation_space}")
