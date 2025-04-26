@@ -1,0 +1,2 @@
+numpy
+warp-lang>=1.0.0

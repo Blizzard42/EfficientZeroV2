@@ -1,0 +1,8 @@
+Metadata-Version: 2.2
+Name: warp-sim-envs
+Version: 0.0.1
+Author: NVIDIA Corporation
+Requires-Dist: numpy
+Requires-Dist: warp-lang>=1.0.0
+Dynamic: author
+Dynamic: requires-dist
