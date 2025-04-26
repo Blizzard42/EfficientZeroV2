@@ -17,7 +17,7 @@ env:
   clip_reward: False # Start without clipping, adjust if necessary
   obs_shape: 55
   episodic: True # Episodes have a max length
-  render_mode: full # none for none, anything else for full
+  render_mode: none # none for none, anything else for full
 
 rl:
   discount: 0.997 # Keep DMC default
@@ -49,15 +49,14 @@ priority:
 train:
   load_model_path: ''
   batch_size: 256
-  # Reduced initially for faster testing, increase later
-  training_steps: 50000
-  offline_training_steps: 10000
+  training_steps: 100000
+  offline_training_steps: 20000
   # Start training after fewer initial random steps
-  start_transitions: 1000
+  start_transitions: 2000
 
   eval_n_episode: 10
   # Evaluate more frequently initially
-  eval_interval: 2500
+  eval_interval: 5000
 
   self_play_update_interval: 100
   reanalyze_update_interval: 200
@@ -88,13 +87,13 @@ train:
   use_IQL: False
   IQL_weight: 0.5
   # Adjust timings based on total training steps if needed
-  start_use_mix_training_steps: 2e4
-  mixed_value_threshold: 1e4
+  start_use_mix_training_steps: 4e4
+  mixed_value_threshold: 2e4
 
 # self-play data collection
 data:
   # WARP often benefits from parallel envs, but start with 1 based on handenv.py
-  num_envs: 1
+  num_envs: 4
   # Adjust buffer based on memory, reduce initially
   buffer_size: 100000
   total_transitions: 100000 # Match buffer size for initial online run
@@ -122,8 +121,8 @@ model:
   noisy_net: False
   action_embedding: True # Good for continuous action spaces
   block_type: resnet
-  down_sample: False # Not relevant for state input
-  state_norm: True # Potentially helpful for state inputs
+  down_sample: True
+  state_norm: False # Potentially helpful for state inputs
   value_prefix: False
   value_target: bootstrapped
   GAE_max_steps: 15
@@ -134,7 +133,7 @@ model:
   num_blocks: 2
 
   # Using smaller shapes from dmc_state.txt as a starting point
-  hidden_shape: 64
+  hidden_shape: 128
   rep_net_shape: 256
   dyn_shape: 256
   act_embed_shape: 64 # Needs to match action embedding output if used
@@ -176,10 +175,8 @@ model:
 
 # worker process allocation
 actors:
-  # Start with 1 data worker since num_envs is 1
   data_worker: 1
-  # Reduce batch workers initially if resource-constrained
-  batch_worker: 5
+  batch_worker: 10
 
 # wandb
 wandb:

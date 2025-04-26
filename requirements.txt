@@ -2,6 +2,8 @@ numpy
 gym
 gym[atari]
 gym[accept-rom-license]
+gymnasium
+rl_games
 cython
 PyOpenGL-accelerate
 hydra-core
