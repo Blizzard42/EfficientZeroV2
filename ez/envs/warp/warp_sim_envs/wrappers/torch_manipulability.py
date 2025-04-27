@@ -332,8 +332,14 @@ class ManipulabilityTorchEnvWrapper(RlgamesEnvWrapper):
                 observations = wp.to_torch(ctx.obs_buf)
                 rewards = wp.to_torch(ctx.rew_buf)
                 dones = wp.to_torch(ctx.done_buf)
+                timeouts = wp.to_torch(ctx.timeout_buf)
                 # manipulability = torch.clone(ctx.target_grad_buffer)
                 # object_pose = wp.to_torch(ctx.target_body_q_buffer)
+
+                FAILURE_PENALTY = -30.0
+                for i in range(self.num_envs):
+                    if dones[i] and not timeouts[i]:
+                        rewards[i] = FAILURE_PENALTY
 
                 extras = {
                     "obs_before_reset": wp.to_torch(ctx.obs_buf),  # .clone(),

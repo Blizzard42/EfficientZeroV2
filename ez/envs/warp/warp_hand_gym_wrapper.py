@@ -112,6 +112,9 @@ class HandEnvGymWrapper(gym.Env):
         # Convert results back to NumPy / Python scalars
         observation = obs_torch.detach().cpu().numpy().squeeze()
         reward = reward_torch.item()
+        if reward > 0.87 or reward < -30.5:
+            print(f"WARNING: Reward outside expected range of {reward}")
+
         terminated = done_torch.item() # Assuming done means terminated
 
         # Handle truncation (check if TimeLimit info is in extras, or use step count)

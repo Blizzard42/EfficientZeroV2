@@ -219,10 +219,12 @@ def main():
     # Optimize trajectory
 
     observation = env.reset()
-    
+    max_reward = -19
+    min_reward = 0
     # Start with random 0 action
     observation, reward, done, extra, manipulability, current_object_pose = env.step(torch.zeros((num_envs, env.num_actions), dtype=torch.float32, device=wp.device_to_torch(env.device)))
-
+    min_reward = min(reward, min_reward)
+    max_reward = max(reward, max_reward)
     costs = []
     actions = []
 
@@ -256,7 +258,9 @@ def main():
         actions.append(action)
         
         observation, reward, done, extra, manipulability, current_object_pose = env.step(action.to(wp.device_to_torch(env.device)))
-        
+        min_reward = min(reward, min_reward)
+        max_reward = max(reward, max_reward)
+
         # Progress
         current_object_pose_cpu = current_object_pose[target_object].cpu().squeeze()
         if torch.norm(goal_cost(current_object_pose_cpu, current_goal_cpu)).cpu() < goal_reach_deviation:
@@ -284,6 +288,8 @@ def main():
 
     print(f'{costs=}')
     print(f'{actions=}')
+    print("MIN REWARD:", min_reward)
+    print("MAX REWARD:", max_reward)
 
     fig = plt.figure()
     plt.plot(costs)

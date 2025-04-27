@@ -203,7 +203,6 @@ def rotate_cube_target_cost_termination(
 
     if cube_translation[1] < 0.1:
         terminated[env_id] = True
-        wp.atomic_add(cost, env_id, 10000.0)
 
 # Compute observation
 
