@@ -32,7 +32,7 @@ class HandEnvGymWrapper(gym.Env):
             AllegroRotateCubeEnvironment(
                 num_envs=1,
                 seed=seed,
-                setup_renderer=True,
+                setup_renderer=(self._render_mode is not None and self._render_mode.lower() != 'none'),
                 requires_grad=True,
                 random_reset=True,
             ),

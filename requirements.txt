@@ -18,4 +18,5 @@ imageio[pyav]
 ray
 torchrl
 colorednoise
+trimesh
 git+https://github.com/jan1854/dmc2gym.git
